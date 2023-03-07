@@ -1,0 +1,34 @@
+#!/bin/bash
+
+while true
+do
+    # выводим список репозиториев с помощью yum
+    echo "Список репозиториев:"
+    yum repolist all
+
+    # запрашиваем имя репозитория у пользователя
+    read -p "Введите имя репозитория: " repo_name
+
+    # проверяем, есть ли такой репозиторий
+    if yum repolist all | grep -wq "$repo_name"; then
+        # если репозиторий подключен, отключаем его
+        if  yum repolist enabled | grep -wq "$repo_name"; then
+            echo "Отключаем репозиторий $repo_name"
+            yum-config-manager --disable "$repo_name"
+        # если репозиторий отключен, подключаем его
+        else
+            echo "Подключаем репозиторий $repo_name"
+             yum-config-manager --enable "$repo_name"
+        fi
+    else
+        echo "Репозиторий $repo_name не найден"
+    fi
+
+    # запрашиваем у пользователя, хочет ли он продолжить работу
+    read -p "Хотите продолжить? (y/n): " choice
+    if [[ "$choice" != "y" ]]; then
+        break
+    fi
+done
+
+exit 0
